@@ -16,9 +16,9 @@ def color_picker(args):
     elif (args[0] == 'amarillo'):
         color_rgb = [255, 255, 0]
     elif (args[0] == 'verde'):
-        color_rgb = [0, 181, 26]
+        color_rgb = [0, 255, 0]
     elif (args[0] == 'azul'):
-        color_rgb = [0, 20, 255]
+        color_rgb = [0, 0, 255]
     elif (args[0] == 'indigo'):
         color_rgb = [0, 28, 200]
     elif (args[0] == 'violeta'):
@@ -47,8 +47,15 @@ def cambiar(args):
 
     # Ejemplo verde [0, 181, 26]
     # '\x00\x00\x00\x00\x00\x00\x00\xb5\x00\x00\x00\x1a'
-    color_bytes = struct.pack('>iii', color_rgb[0], color_rgb[1], color_rgb[2])
-    publish.single("setcolor", color_bytes, hostname = settings.mqtt_hostname, auth = settings.mqtt_auth)
+    color_rgb[0]=chr(color_rgb[0])
+    color_rgb[1]=chr(color_rgb[1])
+    color_rgb[2]=chr(color_rgb[2]) #tienen que estar en char o bin. char da menos problemas. Int no valen
+    inicio=0;	#inicio de posicionamiento del color
+    final=633;	#final del posicionamiento del color
+    #la colocacion de los bytes, la hace la siguiente funcion
+    color_bytes = struct.pack('ccccccc', color_rgb[0], color_rgb[1], color_rgb[2],chr(inicio&0xFF),chr((inicio >> 8) & 0xFF),chr(final&0xFF),chr((final >> 8) & 0xFF))
+    #el color debe ser codificado de la siguiente manera: Byte_rojo,byte_verde,byte_azul byte_partealta_inicio, byte_partebaja_inicio, byte partealta final byte parte baja final
+    publish.single("SetColor", color_bytes, hostname = settings.mqtt_hostname, auth = settings.mqtt_auth)
 
 
 if __name__ == "__main__":
